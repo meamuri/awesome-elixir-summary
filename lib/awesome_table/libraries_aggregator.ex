@@ -23,8 +23,8 @@ defmodule AwesomeTable.LibrariesAggregator do
                     output <- %{res | @helper_field => title} do
                     output
                 end
-            String.starts_with?(x, "* ") ->
-                with key <- acc.latest_category,
+            String.starts_with?(x, "* ") and String.contains?(x, "](https://github.com/") ->
+                with key <- acc[@helper_field],
                     record <- to_struct(x) do
                     %{acc | key => [ record | acc[key]]}
                 end
@@ -32,14 +32,38 @@ defmodule AwesomeTable.LibrariesAggregator do
         end
     end
 
+    def add_stars(records) do
+
+        record_mapper = fn r ->
+            HTTPoison.get("http://api.github.com/repos/#{r.user}/#{r.repo}")
+        end
+
+        f = fn record ->
+            record
+            |> Enum.map(record_mapper)
+        end
+
+        records
+        |> Enum.map(f)
+    end
+
     defp to_struct(awesome_row) do
         [one | _] = awesome_row
         |> String.replace("* ", "")
-        |> String.split(" - ")
-        [name | link] = one
+        |> String.split(") - ")
+        
+        [name | [link]] = one
         |> String.replace("[", "")
         |> String.replace(")", "")
         |> String.split("](")
-        %{name: name, link: link}
+        
+        res = %{name: name, link: link}
+        
+        [repo_name | [ username | _ ]] = link
+        |> String.split("/")
+        |> Enum.reverse
+        
+        res = put_in(res, [:user], username)
+        put_in(res, [:repo], repo_name)
     end
 end
