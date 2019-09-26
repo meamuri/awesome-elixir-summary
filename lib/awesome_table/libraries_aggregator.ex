@@ -1,6 +1,7 @@
 defmodule AwesomeTable.LibrariesAggregator do
 
     @helper_field :latest_category
+    @stars_field "stargazers_count"
 
     def aggregate do
         url = "https://raw.githubusercontent.com/h4cc/awesome-elixir/master/README.md"
@@ -32,19 +33,25 @@ defmodule AwesomeTable.LibrariesAggregator do
         end
     end
 
-    def add_stars(records) do
+    def add_stars(category) do
 
         record_mapper = fn r ->
-            HTTPoison.get("http://api.github.com/repos/#{r.user}/#{r.repo}")
+            url = "https://api.github.com/repos/#{r.user}/#{r.repo}"            
+            {status, response} = HTTPoison.get(url) 
+            stars = response.body
+            |> Poison.decode!
+            |> Map.get(@stars_field)
+            put_in(r, [:stars], stars)
         end
 
-        f = fn record ->
-            record
-            |> Enum.map(record_mapper)
-        end
+        category
+        |> Enum.map(record_mapper)
+    end
 
-        records
-        |> Enum.map(f)
+    def test do
+        aggregate
+        |> Map.values()
+        |> Enum.map(&(add_stars(&1)))
     end
 
     defp to_struct(awesome_row) do
