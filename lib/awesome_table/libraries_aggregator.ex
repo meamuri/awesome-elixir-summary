@@ -40,25 +40,18 @@ defmodule AwesomeTable.LibrariesAggregator do
         end
     end
 
-    def add_stars(category) do
-
-        record_mapper = fn r ->
-            url = "https://api.github.com/repos/#{r.user}/#{r.repo}"            
-            {status, response} = HTTPoison.get(url) 
-            stars = response.body
-            |> Poison.decode!
-            |> Map.get(@stars_field)
-            put_in(r, [:stars], stars)
-        end
-
-        category
-        |> Enum.map(record_mapper)
+    def add_stars(record) do
+        url = "https://api.github.com/repos/#{record.user}/#{record.repo}"
+        {status, response} = HTTPoison.get(url)
+        stars = response.body
+        |> Poison.decode!
+        |> Map.get(@stars_field)
+        put_in(record, [:stars], stars)
     end
 
     def test do
-        aggregate
-        |> Map.values()
-        |> Enum.map(&(add_stars(&1)))
+        aggregate 
+        |> Enum.map(&add_stars/1)
     end
 
     defp to_struct(awesome_row) do
