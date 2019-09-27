@@ -15,6 +15,9 @@ defmodule AwesomeTable.LibrariesAggregator do
                 |> Enum.filter(&(&1 != "" and &1 != "\n"))
                 |> Enum.filter(description_row_filter)
                 |> Enum.reduce(%{@helper_field => ""}, &aggregate_helper/2)
+                |> Map.delete(@helper_field)
+                |> Map.values
+                |> List.flatten
         end
     end
 
@@ -29,8 +32,9 @@ defmodule AwesomeTable.LibrariesAggregator do
                 end
             String.starts_with?(x, "* ") and String.contains?(x, "](https://github.com/") ->
                 with key <- acc[@helper_field],
-                    record <- to_struct(x) do
-                    %{acc | key => [ record | acc[key]]}
+                    record <- to_struct(x),
+                    res = put_in(record, [:category], key) do
+                    %{acc | key => [ res | acc[key]]}
                 end
             true -> acc
         end
@@ -59,21 +63,22 @@ defmodule AwesomeTable.LibrariesAggregator do
 
     defp to_struct(awesome_row) do
         [one | _] = awesome_row
-        |> String.replace("* ", "")
-        |> String.split(") - ")
+            |> String.replace("* ", "")
+            |> String.split(") - ")
         
         [name | [link]] = one
-        |> String.replace("[", "")
-        |> String.replace(")", "")
-        |> String.split("](")
+            |> String.replace("[", "")
+            |> String.replace(")", "")
+            |> String.split("](")
         
         res = %{name: name, link: link}
         
-        [repo_name | [ username | _ ]] = link
-        |> String.split("/")
-        |> Enum.reverse
+        [repo_name | [ username ]] = link
+            |> String.split("/")
+            |> Enum.take(-2)
         
         res = put_in(res, [:user], username)
-        put_in(res, [:repo], repo_name)
+        res = put_in(res, [:repo], repo_name)
+        res
     end
 end
