@@ -8,7 +8,9 @@ defmodule AwesomeTable.LibrariesAggregator do
         description_row_filter = fn row -> 
             !(String.starts_with?(row, "*") and String.ends_with?(row, "*"))
         end
-        with {:ok, response} = HTTPoison.get(url) do
+        token = Application.get_env(:awesome_table, :github_token)        
+        headers = ["Authorization": "token #{token}"] # ["Authorization": "Bearer #{token}", "Accept": "Application/json; Charset=utf-8"]
+        with {:ok, response} = HTTPoison.get(url, headers) do
             response.body
                 |> String.split("\n")
                 |> Enum.drop_while(&(!String.starts_with?(&1, "##")))
