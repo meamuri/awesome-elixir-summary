@@ -68,7 +68,7 @@ defmodule AwesomeTable.LibrariesAggregator do
         
         res = %{name: name, link: link}
         
-        [repo_name | [ username ]] = link
+        [username | [ repo_name ]] = link
             |> String.split("/")
             |> Enum.take(-2)
         
