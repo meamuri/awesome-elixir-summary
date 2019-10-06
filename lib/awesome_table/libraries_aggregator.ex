@@ -2,15 +2,16 @@ defmodule AwesomeTable.LibrariesAggregator do
 
     @helper_field :latest_category
     @stars_field "stargazers_count"
+    @token Application.get_env(:awesome_table, :github_token)
+    @headers ["Authorization": "token #{@token}"]
 
     def aggregate do
         url = "https://raw.githubusercontent.com/h4cc/awesome-elixir/master/README.md"
         description_row_filter = fn row -> 
             !(String.starts_with?(row, "*") and String.ends_with?(row, "*"))
         end
-        token = Application.get_env(:awesome_table, :github_token)        
-        headers = ["Authorization": "token #{token}"] # ["Authorization": "Bearer #{token}", "Accept": "Application/json; Charset=utf-8"]
-        with {:ok, response} = HTTPoison.get(url, headers) do
+
+        with {:ok, response} = HTTPoison.get(url, @headers) do
             response.body
                 |> String.split("\n")
                 |> Enum.drop_while(&(!String.starts_with?(&1, "##")))
@@ -44,7 +45,7 @@ defmodule AwesomeTable.LibrariesAggregator do
 
     def add_stars(record) do
         url = "https://api.github.com/repos/#{record.user}/#{record.repo}"
-        {status, response} = HTTPoison.get(url)
+        {status, response} = HTTPoison.get(url, @headers)
         stars = response.body
         |> Poison.decode!
         |> Map.get(@stars_field)
