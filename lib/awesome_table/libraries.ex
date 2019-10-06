@@ -101,4 +101,10 @@ defmodule AwesomeTable.Libraries do
   def change_library(%Library{} = library) do
     Library.changeset(library, %{})
   end
+
+  def change_request_id(%Library{} = library, request_id) do
+    library
+      |> Ecto.Changeset.change(%{request_id: request_id})
+      |> AwesomeTable.Repo.update()
+  end
 end
