@@ -15,3 +15,15 @@ import "phoenix_html"
 //
 // Local files can be imported directly using relative paths, for example:
 // import socket from "./socket"
+
+let minStarsInput = document.getElementById("min_stars")
+
+minStarsInput
+    .addEventListener("keyup", function(event) {
+        event.preventDefault();
+        if (event.keyCode === 13) {
+            // document.getElementById("id_of_button").click();
+            let stars = minStarsInput.value
+            window.location.replace("/?min_stars=" + stars);
+        }
+    });
