@@ -2,7 +2,6 @@ defmodule AwesomeTableWeb.PageController do
   use AwesomeTableWeb, :controller
 
   def index(conn, parameters) do
-    libs = AwesomeTable.Libraries.list_libraries
     min_stars = with min_stars_parameter <- parameters["min_stars"] do
       cond do
         min_stars_parameter != nil -> min_stars_parameter
@@ -15,10 +14,8 @@ defmodule AwesomeTableWeb.PageController do
       :error -> 0
     end
 
-    render(conn, "index.html", records: Enum.filter(libs, fn r -> r.stars >= lower_boundary end))
+    libs = AwesomeTable.Libraries.list_with_stars_filter(lower_boundary)
+    render(conn, "index.html", records: libs)
   end
 
-#  def index(conn) do
-#    index(conn, %{"min_stars" => 0})
-#  end
 end

@@ -107,4 +107,8 @@ defmodule AwesomeTable.Libraries do
       |> Ecto.Changeset.change(%{request_id: request_id})
       |> AwesomeTable.Repo.update()
   end
+
+  def list_with_stars_filter(min_stars) do
+    AwesomeTable.Repo.all(Ecto.Query.from u in AwesomeTable.Libraries.Library, where: u.stars >= ^min_stars)
+  end
 end
