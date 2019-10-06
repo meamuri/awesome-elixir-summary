@@ -21,9 +21,18 @@ let minStarsInput = document.getElementById("min_stars")
 minStarsInput
     .addEventListener("keyup", function(event) {
         event.preventDefault();
+        let len = this.value.length
+        if (len > 8) {
+            this.value=this.value.slice(0, len - 1)
+        }
+        if (this.value[len] < '0' || this.value[len] > '9') {
+            let lastSymbol = this.value[len].replace(/[^\d]/,'')
+            this.value=this.value.slice(0, len - 1) + lastSymbol
+        }
+
         if (event.keyCode === 13) {
-            // document.getElementById("id_of_button").click();
-            let stars = minStarsInput.value
-            window.location.replace("/?min_stars=" + stars);
+            let stars = parseInt(this.value)
+            let url = isNaN(stars) ? "/" : "/?min_stars=" + stars
+            window.location.replace(url)
         }
     });
