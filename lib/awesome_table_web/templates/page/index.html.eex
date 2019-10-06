@@ -1,0 +1,21 @@
+<section class="phx-hero">
+  <h1><%= gettext "Awesome libraries list" %></h1>
+  <p>Here you can find actual information about awesome elixir libraries.</p>
+</section>
+
+
+
+<%# <section class="row"> %>
+  <table>
+    <tr>
+      <th>name</th><th>stars</th><th>url</th>
+    </tr>
+  <%= for record <- @records do %>
+    <tr>
+      <td><%= record.title %></td>
+      <td><%= record.stars %></td>
+      <td><%=link(record.url, to: record.url, class: "btn") %> </td>
+    </tr>
+  <% end %>
+  </table>
+<%# </section> %>

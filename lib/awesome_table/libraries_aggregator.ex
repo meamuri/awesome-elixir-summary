@@ -52,6 +52,24 @@ defmodule AwesomeTable.LibrariesAggregator do
         put_in(record, [:stars], stars)
     end
 
+    def add_stars_with_redirect(record) do
+      url = "https://api.github.com/repos/#{record.user}/#{record.repo}"
+      {status, response} = HTTPoison.get(url, @headers)
+      body = case response.status_code do
+        301 -> with {_, redirect} <- Enum.find(response.headers, fn {a, b} -> a == "Location" end),
+                    {status, response} <- HTTPoison.get(redirect, @headers) do
+                    response.body
+               end
+        _ -> response.body
+      end
+#      {_, location} = response.headers
+#                      |> Enum.find(fn {a, b} -> a == "Location" end)
+      stars = body
+              |> Poison.decode!
+              |> Map.get(@stars_field)
+      put_in(record, [:stars], stars)
+    end
+
     def test do
         aggregate 
         |> Enum.map(&add_stars/1)
