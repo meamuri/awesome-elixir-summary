@@ -101,4 +101,10 @@ defmodule AwesomeTable.Model do
   def change_request(%Request{} = request) do
     Request.changeset(request, %{})
   end
+
+  def latest_request() do
+  (Ecto.Query.from request in AwesomeTable.Model.Request, order_by: [desc: :inserted_at])
+    |> Ecto.Query.first
+    |> Repo.one
+  end
 end

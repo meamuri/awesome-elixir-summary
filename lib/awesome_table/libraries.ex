@@ -109,6 +109,6 @@ defmodule AwesomeTable.Libraries do
   end
 
   def list_with_stars_filter(min_stars) do
-    AwesomeTable.Repo.all(Ecto.Query.from u in AwesomeTable.Libraries.Library, where: u.stars >= ^min_stars)
+    AwesomeTable.Repo.all(Ecto.Query.from lib in AwesomeTable.Libraries.Library, where: lib.stars >= ^min_stars)
   end
 end
