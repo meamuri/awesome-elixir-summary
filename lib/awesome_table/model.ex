@@ -109,8 +109,8 @@ defmodule AwesomeTable.Model do
     request_date = NaiveDateTime.to_date(request.inserted_at)
     with diff <- Date.diff(request_date, Date.utc_today) do
       cond do
-        diff < 0 -> AwesomeTable.Model.create_request
-        true -> request
+        diff < 0 -> {:new, AwesomeTable.Model.create_request }
+        true -> {:from_db, request }
       end
     end
   end

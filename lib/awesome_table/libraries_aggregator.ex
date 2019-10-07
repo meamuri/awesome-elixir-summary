@@ -62,8 +62,6 @@ defmodule AwesomeTable.LibrariesAggregator do
                end
         _ -> response.body
       end
-#      {_, location} = response.headers
-#                      |> Enum.find(fn {a, b} -> a == "Location" end)
       stars = body
               |> Poison.decode!
               |> Map.get(@stars_field)
