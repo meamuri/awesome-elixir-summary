@@ -7,7 +7,7 @@
   <div class="input-group-prepend">
     <span class="input-group-text" id="basic-addon1">@</span>
   </div>
-  <input id="min_stars" type="number" class="form-control" maxLength="8"
+  <input id="min_stars" type="text" class="form-control" maxLength="8"
             placeholder="Minimum stars" aria-label="Minimum stars" aria-describedby="basic-addon1">
 </div>
 

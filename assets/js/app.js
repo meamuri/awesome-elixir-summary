@@ -22,12 +22,14 @@ minStarsInput
     .addEventListener("keyup", function(event) {
         event.preventDefault();
         let len = this.value.length
-        if (len > 8) {
-            this.value=this.value.slice(0, len - 1)
+
+        if (len > 0) {
+            let lastSymbol = this.value[len - 1].replace(/[^\d]/, '')
+            this.value = this.value.slice(0, len - 1) + lastSymbol
         }
-        if (this.value[len] < '0' || this.value[len] > '9') {
-            let lastSymbol = this.value[len].replace(/[^\d]/,'')
-            this.value=this.value.slice(0, len - 1) + lastSymbol
+
+        if (len > 8) {
+            this.value = this.value.slice(0, len - 1)
         }
 
         if (event.keyCode === 13) {
