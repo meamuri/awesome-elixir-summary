@@ -68,11 +68,6 @@ defmodule AwesomeTable.LibrariesAggregator do
       put_in(record, [:stars], stars)
     end
 
-    def test do
-        aggregate 
-        |> Enum.map(&add_stars/1)
-    end
-
     defp to_struct(awesome_row) do
         [one | _] = awesome_row
             |> String.replace("* ", "")
