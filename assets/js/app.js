@@ -18,6 +18,10 @@ import "phoenix_html"
 
 let minStarsInput = document.getElementById("min_stars")
 
+/**
+ * Solution is inspired by:
+ * https://stackoverflow.com/a/28838789/9072646
+ */
 minStarsInput
     .addEventListener("keyup", function(event) {
         event.preventDefault();
