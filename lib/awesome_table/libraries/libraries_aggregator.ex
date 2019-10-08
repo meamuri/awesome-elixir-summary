@@ -1,4 +1,4 @@
-defmodule AwesomeTable.LibrariesAggregator do
+defmodule AwesomeTable.Libraries.Aggregator do
 
     @helper_field :latest_category
     @stars_field "stargazers_count"

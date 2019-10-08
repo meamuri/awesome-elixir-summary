@@ -109,12 +109,12 @@ defmodule AwesomeTable.Requests do
     latest_request(request)
   end
 
-  def latest_request(nil) do
+  defp latest_request(nil) do
     {status, res} = AwesomeTable.Requests.create_request()
     {:new, res}
   end
 
-  def latest_request(request) do
+  defp latest_request(request) do
     request_date = NaiveDateTime.to_date(request.inserted_at)
     with diff <- Date.diff(request_date, Date.utc_today) do
       cond do
