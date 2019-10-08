@@ -106,12 +106,19 @@ defmodule AwesomeTable.Requests do
     request = (Ecto.Query.from request in AwesomeTable.Requests.Request, order_by: [desc: :inserted_at])
       |> Ecto.Query.first
       |> Repo.one
+    latest_request(request)
+  end
+
+  def latest_request(nil) do
+    {status, res} = AwesomeTable.Requests.create_request()
+    {:new, res}
+  end
+
+  def latest_request(request) do
     request_date = NaiveDateTime.to_date(request.inserted_at)
     with diff <- Date.diff(request_date, Date.utc_today) do
       cond do
-        diff < 0 -> with {status, res} <- AwesomeTable.Requests.create_request() do
-                      {:new, res}
-                    end
+        diff < 0 -> latest_request(nil)
         true -> {:from_db, request }
       end
     end
