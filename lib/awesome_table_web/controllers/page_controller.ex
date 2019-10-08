@@ -5,6 +5,7 @@ defmodule AwesomeTableWeb.PageController do
     min_stars = calc_lower_boundary(parameters)
 
     libs = get_libraries(AwesomeTable.Model.latest_request(), min_stars)
+      |> Enum.sort_by(fn e -> e.title end)
     render(conn, "index.html", records: libs)
   end
 
