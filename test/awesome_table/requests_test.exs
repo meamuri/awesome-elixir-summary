@@ -1,7 +1,7 @@
-defmodule AwesomeTable.ModelTest do
+defmodule AwesomeTable.RequestsTest do
   use AwesomeTable.DataCase
 
-  alias AwesomeTable.Model
+  alias AwesomeTable.Requests
 
   describe "requests" do
     alias AwesomeTable.Model.Request

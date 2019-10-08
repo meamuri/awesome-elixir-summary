@@ -1,4 +1,4 @@
-defmodule AwesomeTable.Model do
+defmodule AwesomeTable.Requests do
   @moduledoc """
   The Model context.
   """
@@ -6,7 +6,7 @@ defmodule AwesomeTable.Model do
   import Ecto.Query, warn: false
   alias AwesomeTable.Repo
 
-  alias AwesomeTable.Model.Request
+  alias AwesomeTable.Requests.Request
 
   @doc """
   Returns the list of requests.
@@ -103,13 +103,13 @@ defmodule AwesomeTable.Model do
   end
 
   def latest_request() do
-    request = (Ecto.Query.from request in AwesomeTable.Model.Request, order_by: [desc: :inserted_at])
+    request = (Ecto.Query.from request in AwesomeTable.Requests.Request, order_by: [desc: :inserted_at])
       |> Ecto.Query.first
       |> Repo.one
     request_date = NaiveDateTime.to_date(request.inserted_at)
     with diff <- Date.diff(request_date, Date.utc_today) do
       cond do
-        diff < 0 -> with {status, res} <- AwesomeTable.Model.create_request() do
+        diff < 0 -> with {status, res} <- AwesomeTable.Requests.create_request() do
                       {:new, res}
                     end
         true -> {:from_db, request }

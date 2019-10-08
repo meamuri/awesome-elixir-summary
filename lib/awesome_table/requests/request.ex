@@ -1,4 +1,4 @@
-defmodule AwesomeTable.Model.Request do
+defmodule AwesomeTable.Requests.Request do
   use Ecto.Schema
   import Ecto.Changeset
 
