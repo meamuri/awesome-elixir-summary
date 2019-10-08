@@ -9,12 +9,11 @@ defmodule AwesomeTableWeb.PageController do
   end
 
   defp get_libraries({:new, record}, lower_boundary) do
-#    res = AwesomeTable.LibrariesAggregator.aggregate
-#      |> Enum.map(&AwesomeTable.LibrariesAggregator.add_stars_with_redirect/1)
-#      |> Each.map(fn lib -> put_in(lib, [:request_id], record.id) end)
-#    Enum.each(res, fn lib -> AwesomeTable.Libraries.create_library(lib) end)
-#    res
-    AwesomeTable.Libraries.list_with_stars_filter(lower_boundary, 4)
+    res = AwesomeTable.LibrariesAggregator.aggregate
+      |> Enum.map(&AwesomeTable.LibrariesAggregator.add_temp_stars/1)
+      |> Enum.map(fn lib -> put_in(lib, [:request_id], record.id) end)
+    Enum.each(res, fn lib -> AwesomeTable.Libraries.create_library(lib) end)
+    Enum.filter(res, fn lib -> lib.stars >= lower_boundary end)
   end
 
   defp get_libraries({:from_db, record}, lower_boundary) do

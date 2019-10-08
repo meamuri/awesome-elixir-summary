@@ -43,8 +43,15 @@ defmodule AwesomeTable.LibrariesAggregator do
         end
     end
 
+    def add_temp_stars(record) do
+      put_in(record, [:stars], -1)
+      # -1 means that api request required for getting stars
+      # -2 means that api redirect required
+      # -3 means that stars undefined after api redirect. Should be researched
+    end
+
     def add_stars(record) do
-        url = "https://api.github.com/repos/#{record.user}/#{record.repo}"
+        url = "https://api.github.com/repos/#{record.user}/#{record.title}"
         {status, response} = HTTPoison.get(url, @headers)
         stars = response.body
         |> Poison.decode!
@@ -53,7 +60,7 @@ defmodule AwesomeTable.LibrariesAggregator do
     end
 
     def add_stars_with_redirect(record) do
-      url = "https://api.github.com/repos/#{record.user}/#{record.repo}"
+      url = "https://api.github.com/repos/#{record.user}/#{record.title}"
       {status, response} = HTTPoison.get(url, @headers)
       body = case response.status_code do
         301 -> with {_, redirect} <- Enum.find(response.headers, fn {a, b} -> a == "Location" end),
@@ -85,7 +92,7 @@ defmodule AwesomeTable.LibrariesAggregator do
             |> Enum.take(-2)
         
         res = put_in(res, [:user], username)
-        res = put_in(res, [:repo], repo_name)
+        res = put_in(res, [:title], repo_name)
         res
     end
 end
