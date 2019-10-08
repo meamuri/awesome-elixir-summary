@@ -12,16 +12,23 @@
 </div>
 
 <%# <section class="row"> %>
-  <table>
+  <table class="table">
     <tr>
       <th>name</th><th>stars</th><th>url</th>
     </tr>
-  <%= for record <- @records do %>
-    <tr>
-      <td><%= record.title %></td>
-      <td><%= record.stars %></td>
-      <td><%=link(record.url, to: record.url, class: "btn") %> </td>
-    </tr>
-  <% end %>
+  <%= for {k, v} <- @records do %>
+  <thead class="thead-dark">
+    <tr><th> <%= k %> </th><th> </th><th> </th></tr>
+  </thead>
+      <tbody>
+        <%= for record <- v do %>
+        <tr>
+          <td><%= record.title %></td>
+          <td><%= record.stars %></td>
+          <td><%=link(record.url, to: record.url, class: "btn") %> </td>
+        </tr>
+        <% end %>
+        <tbody>
+    <% end %>
   </table>
 <%# </section> %>
