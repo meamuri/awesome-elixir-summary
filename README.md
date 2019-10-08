@@ -14,10 +14,7 @@ Useful commands:
 Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
 ## TODO  
-  * sort  
   * tests
-  * categories
-  * codestyle: module Model to Request module, more functions and helpers
 
   * db dump to project directory
   * db management tutorial to readme file
