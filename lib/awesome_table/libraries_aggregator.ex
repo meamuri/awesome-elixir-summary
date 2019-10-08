@@ -43,8 +43,15 @@ defmodule AwesomeTable.LibrariesAggregator do
         end
     end
 
+    def add_temp_stars(record) do
+      put_in(record, [:stars], -1)
+      # -1 means that api request required for getting stars
+      # -2 means that api redirect required
+      # -3 means that stars undefined after api redirect. Should be researched
+    end
+
     def add_stars(record) do
-        url = "https://api.github.com/repos/#{record.user}/#{record.repo}"
+        url = "https://api.github.com/repos/#{record.user}/#{record.title}"
         {status, response} = HTTPoison.get(url, @headers)
         stars = response.body
         |> Poison.decode!
@@ -53,7 +60,7 @@ defmodule AwesomeTable.LibrariesAggregator do
     end
 
     def add_stars_with_redirect(record) do
-      url = "https://api.github.com/repos/#{record.user}/#{record.repo}"
+      url = "https://api.github.com/repos/#{record.user}/#{record.title}"
       {status, response} = HTTPoison.get(url, @headers)
       body = case response.status_code do
         301 -> with {_, redirect} <- Enum.find(response.headers, fn {a, b} -> a == "Location" end),
@@ -62,17 +69,10 @@ defmodule AwesomeTable.LibrariesAggregator do
                end
         _ -> response.body
       end
-#      {_, location} = response.headers
-#                      |> Enum.find(fn {a, b} -> a == "Location" end)
       stars = body
               |> Poison.decode!
               |> Map.get(@stars_field)
       put_in(record, [:stars], stars)
-    end
-
-    def test do
-        aggregate 
-        |> Enum.map(&add_stars/1)
     end
 
     defp to_struct(awesome_row) do
@@ -80,19 +80,19 @@ defmodule AwesomeTable.LibrariesAggregator do
             |> String.replace("* ", "")
             |> String.split(") - ")
         
-        [name | [link]] = one
+        [name | [url]] = one
             |> String.replace("[", "")
             |> String.replace(")", "")
             |> String.split("](")
         
-        res = %{name: name, link: link}
+        res = %{name: name, url: url}
         
-        [username | [ repo_name ]] = link
+        [username | [ repo_name ]] = url
             |> String.split("/")
             |> Enum.take(-2)
         
         res = put_in(res, [:user], username)
-        res = put_in(res, [:repo], repo_name)
+        res = put_in(res, [:title], repo_name)
         res
     end
 end
