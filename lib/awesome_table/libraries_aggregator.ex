@@ -80,14 +80,14 @@ defmodule AwesomeTable.LibrariesAggregator do
             |> String.replace("* ", "")
             |> String.split(") - ")
         
-        [name | [link]] = one
+        [name | [url]] = one
             |> String.replace("[", "")
             |> String.replace(")", "")
             |> String.split("](")
         
-        res = %{name: name, link: link}
+        res = %{name: name, url: url}
         
-        [username | [ repo_name ]] = link
+        [username | [ repo_name ]] = url
             |> String.split("/")
             |> Enum.take(-2)
         
