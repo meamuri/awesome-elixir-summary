@@ -2,8 +2,8 @@ use Mix.Config
 
 # Configure your database
 config :awesome_table, AwesomeTable.Repo,
-  username: "awesome_table_admin",
-  password: "awesome_password",
+  username: System.get_env("DB_USER_NAME"),
+  password: System.get_env("DB_USER_PASS"),
   database: "awesome_table_dev",
   hostname: "localhost",
   show_sensitive_data_on_connection_error: true,

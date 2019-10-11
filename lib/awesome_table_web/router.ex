@@ -1,5 +1,6 @@
 defmodule AwesomeTableWeb.Router do
   use AwesomeTableWeb, :router
+  import Phoenix.LiveView.Router
 
   pipeline :browser do
     plug :accepts, ["html"]
@@ -16,7 +17,8 @@ defmodule AwesomeTableWeb.Router do
   scope "/", AwesomeTableWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
+    live "/", LiveTable
+    get "/legacy", PageController, :index
   end
 
   # Other scopes may use custom stacks.
