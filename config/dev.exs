@@ -20,9 +20,6 @@ config :awesome_table, AwesomeTableWeb.Endpoint,
   debug_errors: true,
   code_reloader: true,
   check_origin: false,
-  pubsub: [adapter: Phoenix.PubSub.PG2,
-    pool_size: 1,
-    name: AwesomeTable.PubSub],
   watchers: [
     node: [
       "node_modules/webpack/bin/webpack.js",
