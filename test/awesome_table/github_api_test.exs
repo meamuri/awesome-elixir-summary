@@ -3,7 +3,7 @@ defmodule AwesomeTable.GithubApiTest do
 
   alias AwesomeTable.GithubRepositoryApi
 
-  test "stars of current repo shoold be great or equals to 0" do
+  test "stars of current repo should be great or equals to 0" do
     response = GithubRepositoryApi.fetch_repo("/meamuri/awesome-elixir-summary")
     assert response["stargazers_count"] >= 0
   end
