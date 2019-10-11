@@ -7,7 +7,7 @@ defmodule AwesomeTableWeb.PageController do
     libs = get_libraries(AwesomeTable.Requests.latest_request(), min_stars)
       |> Enum.sort_by(fn e -> e.title end)
       |> Enum.group_by(fn e -> e.category end)
-      |> Enum.sort_by(fn {k, v} -> k end)
+      |> Enum.sort_by(fn {k, _} -> k end)
     render(conn, "index.html", records: libs)
   end
 
