@@ -1,9 +1,6 @@
 defmodule AwesomeTable.Libraries.Aggregator do
 
     @helper_field :latest_category
-    @stars_field "stargazers_count"
-    @token Application.get_env(:awesome_table, :github_token)
-    @headers ["Authorization": "token #{@token}"]
 
     def aggregate do
         url = "https://raw.githubusercontent.com/h4cc/awesome-elixir/master/README.md"
@@ -11,7 +8,7 @@ defmodule AwesomeTable.Libraries.Aggregator do
             !(String.starts_with?(row, "*") and String.ends_with?(row, "*"))
         end
 
-        with {:ok, response} = HTTPoison.get(url, @headers) do
+        with {:ok, response} = HTTPoison.get(url) do
             response.body
                 |> String.split("\n")
                 |> Enum.drop_while(&(!String.starts_with?(&1, "##")))
@@ -50,31 +47,6 @@ defmodule AwesomeTable.Libraries.Aggregator do
       # -3 means that stars undefined after api redirect. Should be researched
     end
 
-    def add_stars(record) do
-        url = "https://api.github.com/repos/#{record.user}/#{record.title}"
-        {status, response} = HTTPoison.get(url, @headers)
-        stars = response.body
-        |> Poison.decode!
-        |> Map.get(@stars_field)
-        put_in(record, [:stars], stars)
-    end
-
-    def add_stars_with_redirect(record) do
-      url = "https://api.github.com/repos/#{record.user}/#{record.title}"
-      {status, response} = HTTPoison.get(url, @headers)
-      body = case response.status_code do
-        301 -> with {_, redirect} <- Enum.find(response.headers, fn {a, b} -> a == "Location" end),
-                    {status, response} <- HTTPoison.get(redirect, @headers) do
-                    response.body
-               end
-        _ -> response.body
-      end
-      stars = body
-              |> Poison.decode!
-              |> Map.get(@stars_field)
-      put_in(record, [:stars], stars)
-    end
-
     defp to_struct(awesome_row) do
         [one | _] = awesome_row
             |> String.replace("* ", "")
@@ -93,6 +65,7 @@ defmodule AwesomeTable.Libraries.Aggregator do
         
         res = put_in(res, [:user], username)
         res = put_in(res, [:title], repo_name)
+        res = put_in(res, [:stars], -1)
         res
     end
 end
