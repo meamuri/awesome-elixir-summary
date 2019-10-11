@@ -110,7 +110,7 @@ defmodule AwesomeTable.Requests do
   end
 
   defp latest_request(nil) do
-    {status, res} = AwesomeTable.Requests.create_request()
+    {_, res} = AwesomeTable.Requests.create_request()
     {:new, res}
   end
 

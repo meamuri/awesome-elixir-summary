@@ -1,12 +1,12 @@
 # AwesomeTable
 
-Steps for application running:
+## Task:
+Show data from awesome elixir page with filter by repository stars count. 
+
+## Steps for application running:
+
   * install dependencies with `mix deps.get`
-  * persistent layer configuration:
-    * create database: `CREATE DATABASE awesome_table_dev;`
-    * create db user: `CREATE USER awesome_table_developer WITH password 'awesome_password';`
-    * provide access: `GRANT ALL ON DATABASE awesome_table_dev TO awesome_table_developer;`
-    * `ALTER USER awesome_table_developer CREATEDB;`
+  * persistent layer configuration: run scripts from `db/scripts` (it doesn't work for now)
 
 Useful commands:
   * `mix phx.gen.context Request Request requests`
