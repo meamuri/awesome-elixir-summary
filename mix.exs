@@ -20,7 +20,7 @@ defmodule AwesomeTable.MixProject do
   def application do
     [
       mod: {AwesomeTable.Application, []},
-      extra_applications: [:logger, :runtime_tools, :httpoison]
+      extra_applications: [:logger, :runtime_tools, :httpoison, :event_bus]
     ]
   end
 
@@ -45,6 +45,7 @@ defmodule AwesomeTable.MixProject do
       {:jason, "~> 1.0"},
       {:plug_cowboy, "~> 2.0"},
       {:httpoison, "~> 1.5.1"},
+      {:event_bus, "~> 1.6.1"},
       {:poison, "~> 3.1"}
     ]
   end
