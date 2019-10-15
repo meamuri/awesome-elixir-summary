@@ -7,7 +7,7 @@ defmodule AwesomeTable.GithubRepositoryApi do
   @headers ["Authorization": "token #{@token}"]
 
   def repo_stars(%{title: title, user: user}) do
-    fetch_repo("#{user}/#{title}") |> Map.get(@stars_field)
+    fetch_repo("/#{user}/#{title}") |> Map.get(@stars_field)
   end
 
   def fetch_repo(url) do
@@ -16,12 +16,12 @@ defmodule AwesomeTable.GithubRepositoryApi do
       {:fetched, body} -> body |> Poison.decode!
       {:unknown, body} -> body
     end
-
   end
 
   defp handle_response(301, response) do
     with {_, redirect} <- Enum.find(response.headers, fn {key, _} -> key == "Location" end),
-         {:ok, response} <- fetch_repo(redirect) do
+         {:ok, response} <- HTTPoison.get(redirect, @headers) do
+      Logger.info "after redirect received message: #{inspect(response)}}"
       {:fetched, response.body}
     end
   end
