@@ -10,6 +10,6 @@ defmodule AwesomeTable.GithubApiTest do
 
   test "stars of unknown repo (404 response) should be negative value (-2)" do
     response = GithubRepositoryApi.repo_stars(%{user: "aaa", title: "bbb"})
-    assert response == -2
+    assert response <= -400
   end
 end

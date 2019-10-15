@@ -1,4 +1,5 @@
 defmodule AwesomeTable.GithubRepositoryApi do
+  require Logger
 
   @github_api_url "https://api.github.com/repos"
   @stars_field "stargazers_count"
@@ -29,11 +30,8 @@ defmodule AwesomeTable.GithubRepositoryApi do
     {:fetched, response.body}
   end
 
-  defp handle_response(401, _) do
-    {:unknown, %{@stars_field => -401}}
-  end
-
-  defp handle_response(_, _) do
-    {:unknown, %{@stars_field => -2}}
+  defp handle_response(code, response) do
+    Logger.info "Github processing #{inspect(response)}"
+    {:unknown, %{@stars_field => -code}}
   end
 end
