@@ -11,7 +11,7 @@ defmodule AwesomeTable.Application do
       # Start the Ecto repository
       AwesomeTable.Repo,
       # Start the endpoint when the application starts
-      AwesomeTableWeb.Endpoint
+      AwesomeTableWeb.Endpoint,
       # Starts a worker by calling: AwesomeTable.Worker.start_link(arg)
       # {AwesomeTable.Worker, arg},
     ]

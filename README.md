@@ -6,6 +6,8 @@ Show data from awesome elixir page with filter by repository stars count.
 ## Steps for application running:
   
   * persistent layer configuration: run scripts from `db/scripts` (it doesn't work for now)
+  * rename `.env.example` to `.env` and fill environment variables with correct values.
+    (you can generate salt with `mix phx.gen.secret 32`)
   * for running tests: `./tests.sh`
 
 Useful commands:
@@ -18,6 +20,7 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 
 ## TODO  
   * tests
+  * improve views with helpers
 
   * db dump to project directory
   * db management tutorial to readme file

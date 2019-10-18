@@ -13,7 +13,6 @@ defmodule AwesomeTableWeb.PageController do
 
   defp get_libraries({:new, record}, lower_boundary) do
     res = AwesomeTable.Libraries.Aggregator.aggregate
-      |> Enum.map(&AwesomeTable.Libraries.Aggregator.add_temp_stars/1)
       |> Enum.map(fn lib -> put_in(lib, [:request_id], record.id) end)
     Enum.each(res, fn lib -> AwesomeTable.Libraries.create_library(lib) end)
     Enum.filter(res, fn lib -> lib.stars >= lower_boundary end)
