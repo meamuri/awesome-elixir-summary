@@ -1,48 +1,50 @@
 defmodule AwesomeTable.StarsCheckingWorker do
   require Logger
 
+  @interval_between_execution_in_millis 5
+
   def start_link(_) do
     GenServer.start_link(__MODULE__, %{})
   end
 
   @impl true
   def init(_) do
-    schedule_work()
     latest_request = AwesomeTable.Requests.latest_request()
     libs = get_libraries(latest_request, 0)
-#         |> Enum.sort_by(fn e -> e.title end)
-         |> Enum.group_by(fn e -> e.id end)
-#         |> Enum.sort_by(fn {k, _} -> k end)
+            |> Enum.group_by(fn e -> e.stars >= 0 end)
     state = %{
-      libs: libs,
-      updated: %{},
+      loaded: libs[true],
+      updated: libs[false],
       request_id: latest_request,
+      execution_start_time: Time.utc_now,
     }
+    schedule_work()
     {:ok, state}
   end
 
   @impl true
   def handle_info(:work, state) do
-    # Do the desired work here
-    # ...
+    map_with_stars = fn record ->
+      repo_stars = AwesomeTable.GithubRepositoryApi.repo_stars(record)
+      %{record | stars: repo_stars}
+    end
 
-    # Reschedule once more
-    schedule_work()
-
-    before_work_ids = Map.keys(state.updated)
-
-    updated = AwesomeTable.Libraries.list_with_stars_filter(state.request_id)
-              |> Enum.map(AwesomeTable.GithubRepositoryApi.repo_stars())
+    updated = state.loaded
+              |> Enum.take(5)
+              |> Enum.map(&map_with_stars/1)
               |> Enum.group_by(fn e -> e.id end)
 
-    state.updated
-      |> Enum.filter(fn {id, e} -> !Map.has_key?(updated, id) end)
-      |> Enum.each(fn {k, v} ->
-                        Logger.info "#{inspect v}}"
-                        AwesomeTable.Libraries.update_library(%{stars: v.stars})
-                   end)
+    loaded = state.loaded |> Enum.drop_by(fn e -> Map.has_key?(updated, e.id) end)
+    updated = [state.updated | Enum.each(updated, fn {k, [e, _]} -> e end)]
+    after_processing_ts = Time.utc_now
+    delay = compute_delay(state.execution_start_time, after_processing_ts)
 
-    {:noreply, %{state | updated: updated}}
+    schedule_work(delay)
+    {:noreply, %{
+      loaded: loaded,
+      updated: updated,
+      execution_start_time: after_processing_ts
+    }}
   end
 
   defp get_libraries({:new, record}, lower_boundary) do
@@ -55,9 +57,18 @@ defmodule AwesomeTable.StarsCheckingWorker do
     AwesomeTable.Libraries.list_with_stars_filter(lower_boundary, record.id)
   end
 
-  defp schedule_work do
-    # In 2 secs
-    Process.send_after(self(), :work, 2 * 1000)
+  defp schedule_work(delay_in_millis \\ 0) do
+    Process.send_after(self(), :work, delay_in_millis)
+  end
+
+  defp compute_delay(start_execution, finished_execution) do
+    delay = Time.diff(finished_execution, start_execution, :millisecond)
+    with delta <- (@interval_between_execution_in_millis - delay) do
+      cond do
+        delta < 0 -> 0
+        true -> delta
+      end
+    end
   end
 
 end
