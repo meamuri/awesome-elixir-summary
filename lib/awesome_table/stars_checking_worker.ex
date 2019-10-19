@@ -26,9 +26,9 @@ defmodule AwesomeTable.StarsCheckingWorker do
               |> Enum.map(map_with_stars)
               |> Enum.group_by(fn e -> e.id end)
 
-    loaded = state.loaded |> Enum.drop(fn e -> Map.has_key?(updated, e.id) end)
+    loaded = state.loaded |> Enum.filter(fn e -> !Map.has_key?(updated, e.id) end)
     Logger.info "For future updates #{inspect(loaded)}"
-    updated = [state.updated | Enum.each(updated, fn {_, [e, _]} -> e end)]
+    updated = state.updated ++ Enum.map(updated, fn {_, [e, _]} -> e end)
     Logger.info "to update #{inspect(updated)}"
     after_processing_ts = Time.utc_now
     delay = compute_delay(state.execution_start_time, after_processing_ts)
@@ -71,13 +71,13 @@ defmodule AwesomeTable.StarsCheckingWorker do
     Logger.info("latest request is #{inspect(latest_request)}")
     libs = get_libraries(latest_request, 0)
             |> Enum.group_by(fn e -> e.stars >= 0 end)
-    Logger.info("init job with #{inspect(libs)}")
     state = %{
       loaded: libs[false],
       updated: libs[true],
       request_id: latest_request,
       execution_start_time: initial_state.execution_start_time,
     }
+    Logger.info("init job with #{inspect(state)}")
     state
   end
 
