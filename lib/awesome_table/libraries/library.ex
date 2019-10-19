@@ -7,6 +7,7 @@ defmodule AwesomeTable.Libraries.Library do
     field :stars, :integer
     field :title, :string
     field :url, :string
+    field :owner, :string
     field :request_id, :integer
 
     timestamps()
@@ -15,7 +16,7 @@ defmodule AwesomeTable.Libraries.Library do
   @doc false
   def changeset(library, attrs) do
     library
-    |> cast(attrs, [:category, :title, :url, :stars, :request_id])
-    |> validate_required([:category, :title, :url, :stars])
+    |> cast(attrs, [:category, :title, :url, :stars, :request_id, :owner])
+    |> validate_required([:category, :title, :url, :stars, :owner])
   end
 end

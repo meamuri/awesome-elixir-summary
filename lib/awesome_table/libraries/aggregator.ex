@@ -63,7 +63,7 @@ defmodule AwesomeTable.Libraries.Aggregator do
             |> String.split("/")
             |> Enum.take(-2)
         
-        res = put_in(res, [:user], username)
+        res = put_in(res, [:owner], username)
         res = put_in(res, [:title], repo_name)
         res = put_in(res, [:stars], -1)
         res

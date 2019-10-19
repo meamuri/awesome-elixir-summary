@@ -6,7 +6,7 @@ defmodule AwesomeTable.GithubRepositoryApi do
   @token Application.get_env(:awesome_table, :github_token)
   @headers ["Authorization": "token #{@token}"]
 
-  def repo_stars(%{title: title, user: user}) do
+  def repo_stars(%{title: title, owner: user}) do
     fetch_repo("/#{user}/#{title}") |> Map.get(@stars_field)
   end
 

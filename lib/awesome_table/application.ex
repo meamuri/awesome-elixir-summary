@@ -14,6 +14,10 @@ defmodule AwesomeTable.Application do
       AwesomeTableWeb.Endpoint,
       # Starts a worker by calling: AwesomeTable.Worker.start_link(arg)
       # {AwesomeTable.Worker, arg},
+      %{
+        id: AwesomeTable.StarsCheckingWorker,
+        start: {AwesomeTable.StarsCheckingWorker, :start_link, []}
+      }
     ]
 
     # See https://hexdocs.pm/elixir/Supervisor.html
