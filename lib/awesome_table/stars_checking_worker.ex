@@ -31,11 +31,11 @@ defmodule AwesomeTable.StarsCheckingWorker do
 
     updated = state.loaded
               |> Enum.take(5)
-              |> Enum.map(&map_with_stars/1)
+              |> Enum.map(map_with_stars)
               |> Enum.group_by(fn e -> e.id end)
 
-    loaded = state.loaded |> Enum.drop_by(fn e -> Map.has_key?(updated, e.id) end)
-    updated = [state.updated | Enum.each(updated, fn {k, [e, _]} -> e end)]
+    loaded = state.loaded |> Enum.drop(fn e -> Map.has_key?(updated, e.id) end)
+    updated = [state.updated | Enum.each(updated, fn {_, [e, _]} -> e end)]
     after_processing_ts = Time.utc_now
     delay = compute_delay(state.execution_start_time, after_processing_ts)
 
