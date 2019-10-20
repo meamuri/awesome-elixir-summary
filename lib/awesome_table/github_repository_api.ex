@@ -15,14 +15,15 @@ defmodule AwesomeTable.GithubRepositoryApi do
     case handle_response(response.status_code, response) do
       {:fetched, body} -> body |> Poison.decode!
       {:unknown, body} -> body
+      {:redirected, body} -> body
     end
   end
 
   defp handle_response(301, response) do
     with {_, redirect} <- Enum.find(response.headers, fn {key, _} -> key == "Location" end),
-         {:ok, response} <- HTTPoison.get(redirect, @headers) do
-      Logger.info "after redirect received message: #{inspect(response)}}"
-      {:fetched, response.body}
+         {:ok, response} <- HTTPoison.get(redirect, @headers),
+         res <- Poison.decode!(response.body) do
+      {:redirected, res}
     end
   end
 

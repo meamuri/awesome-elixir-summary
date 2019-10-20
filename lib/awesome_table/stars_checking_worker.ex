@@ -18,18 +18,26 @@ defmodule AwesomeTable.StarsCheckingWorker do
     state = compute_state(initial_state)
     map_with_stars = fn record ->
       repo_stars = AwesomeTable.GithubRepositoryApi.repo_stars(record)
-      %{record | stars: repo_stars}
+      res = %{record | stars: repo_stars}
+      Logger.info "#{inspect(res)}"
+      res
     end
-    Logger.info("loaded before processing: #{inspect(state.loaded)}")
     updated = state.loaded
               |> Enum.take(5)
               |> Enum.map(map_with_stars)
-              |> Enum.group_by(fn e -> e.id end)
+              |> Enum.reduce(%{}, fn e, acc -> put_in(acc, [e.id], e) end)
+
+    updated
+      |> Map.values
+      |> Enum.each(fn e ->
+                      Logger.info("try to update #{e.id}")
+                      AwesomeTable.Libraries.update_library(e, %{stars: e.stars})
+                   end)
 
     loaded = state.loaded |> Enum.filter(fn e -> !Map.has_key?(updated, e.id) end)
-    Logger.info "For future updates #{inspect(loaded)}"
-    updated = state.updated ++ Enum.map(updated, fn {_, [e, _]} -> e end)
-    Logger.info "to update #{inspect(updated)}"
+    Logger.info "For future updates #{inspect(loaded |> Enum.map(fn e -> e.id end))}"
+    Logger.info "Updated at iteration #{inspect(Map.keys(updated))}"
+    updated = state.updated ++ Map.values(updated)
     after_processing_ts = Time.utc_now
     delay = compute_delay(state.execution_start_time, after_processing_ts)
 
@@ -71,13 +79,14 @@ defmodule AwesomeTable.StarsCheckingWorker do
     Logger.info("latest request is #{inspect(latest_request)}")
     libs = get_libraries(latest_request, 0)
             |> Enum.group_by(fn e -> e.stars >= 0 end)
+    loaded = if libs[false], do: libs[false], else: []
+    updated = if libs[true], do: libs[true], else: []
     state = %{
-      loaded: libs[false],
-      updated: libs[true],
+      loaded: loaded,
+      updated: updated,
       request_id: latest_request,
       execution_start_time: initial_state.execution_start_time,
     }
-    Logger.info("init job with #{inspect(state)}")
     state
   end
 
