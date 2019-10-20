@@ -7,10 +7,20 @@ defmodule AwesomeTable.StarsCheckingWorker do
     GenServer.start_link(__MODULE__, initial)
   end
 
+
+  def register(pid) do
+    GenServer.cast(__MODULE__, {:register, pid})
+  end
+
   @impl true
   def init(_) do
     schedule_work()
-    {:ok, %{execution_start_time: Time.utc_now}}
+    {:ok, %{execution_start_time: Time.utc_now, subscribers: %{}}}
+  end
+
+  def handle_info({:register, pid}, state) do
+    subscribers = put_in(state.subscribers, [pid], true)
+    {:noreply, %{state | :subscribers => subscribers}}
   end
 
   @impl true
@@ -28,11 +38,14 @@ defmodule AwesomeTable.StarsCheckingWorker do
     after_processing_ts = Time.utc_now
     delay = compute_delay(state.execution_start_time, after_processing_ts)
 
+    Map.keys(state.subscribers) |> Enum.each(fn pid -> Process.send(pid, :update, []) end)
+
     schedule_work(delay)
     {:noreply, %{
       loaded: loaded,
       updated: updated,
-      execution_start_time: after_processing_ts
+      execution_start_time: after_processing_ts,
+      subscribers: state.subscribers
     }}
   end
 
@@ -83,6 +96,7 @@ defmodule AwesomeTable.StarsCheckingWorker do
       updated: updated,
       request_id: latest_request,
       execution_start_time: initial_state.execution_start_time,
+      subscribers: initial_state.subscribers,
     }
     state
   end
