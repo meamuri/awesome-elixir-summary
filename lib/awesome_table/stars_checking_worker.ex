@@ -1,7 +1,7 @@
 defmodule AwesomeTable.StarsCheckingWorker do
   require Logger
 
-  @interval_between_execution_in_millis 5
+  @interval_between_execution_in_millis 5000
 
   def start_link(initial \\ %{}) do
     GenServer.start_link(__MODULE__, initial)
@@ -75,7 +75,7 @@ defmodule AwesomeTable.StarsCheckingWorker do
     latest_request = AwesomeTable.Requests.latest_request()
     Logger.info("latest request is #{inspect(latest_request)}")
     libs = get_libraries(latest_request, 0)
-            |> Enum.group_by(fn e -> e.stars >= 0 end)
+            |> Enum.group_by(fn e -> e.stars != -1 end)
     loaded = if libs[false], do: libs[false], else: []
     updated = if libs[true], do: libs[true], else: []
     state = %{
