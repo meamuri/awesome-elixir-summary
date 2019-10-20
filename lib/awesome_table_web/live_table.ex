@@ -4,7 +4,7 @@ defmodule AwesomeTableWeb.LiveTable do
   require Logger
 
   def mount(_session, socket) do
-    if connected?(socket), do: AwesomeTable.StarsCheckingWorker.register(self())  # <-- add this
+    if connected?(socket), do: AwesomeTable.StarsCheckingWorker.register(self())
     {:ok,
       assign(socket,
         records: compute_records()
@@ -16,6 +16,9 @@ defmodule AwesomeTableWeb.LiveTable do
   end
 
   def handle_info(:update, socket) do
+    LOGGER.info "AU"
+    LOGGER.info "AU !!"
+    LOGGER.info "COMPUUUUTE"
     {:noreply, assign(socket, records: compute_records())}
   end
 

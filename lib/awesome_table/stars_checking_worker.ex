@@ -1,7 +1,7 @@
 defmodule AwesomeTable.StarsCheckingWorker do
   require Logger
 
-  @interval_between_execution_in_millis 5000
+  @interval_between_execution_in_millis 2000
 
   def start_link(initial \\ %{}) do
     GenServer.start_link(__MODULE__, initial)
@@ -30,7 +30,7 @@ defmodule AwesomeTable.StarsCheckingWorker do
   def handle_info(:work, initial_state) do
     state = compute_state(initial_state)
     updated = state.loaded
-              |> Enum.take(5)
+              |> Enum.take(10)
               |> Enum.map(&map_with_stars/1)
               |> Enum.reduce(%{}, fn e, acc -> put_in(acc, [e.id], e) end)
 
