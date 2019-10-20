@@ -24,7 +24,7 @@
         <%= for record <- v do %>
         <tr>
           <td><%= record.title %></td>
-          <td><%= record.stars %></td>
+          <td><%= prepare_stars(record.stars) %></td>
           <td><%=link(record.url, to: record.url, class: "btn") %> </td>
         </tr>
         <% end %>
