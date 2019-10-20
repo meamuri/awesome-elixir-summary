@@ -41,7 +41,7 @@ defmodule AwesomeTable.StarsCheckingWorker do
     after_processing_ts = Time.utc_now
     delay = compute_delay(state.execution_start_time, after_processing_ts)
 
-    Map.keys(state.subscribers) |> Enum.each(fn pid -> Process.send(pid, :update, []) end)
+    Map.keys(state.subscribers) |> Enum.each(fn pid -> Process.send(pid, {:update, self(), state}) end)
 
     schedule_work(delay)
     {:noreply, %{

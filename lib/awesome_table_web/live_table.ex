@@ -16,9 +16,6 @@ defmodule AwesomeTableWeb.LiveTable do
   end
 
   def handle_info(:update, socket) do
-    LOGGER.info "AU"
-    LOGGER.info "AU !!"
-    LOGGER.info "COMPUUUUTE"
     {:noreply, assign(socket, records: compute_records())}
   end
 
