@@ -16,23 +16,10 @@ defmodule AwesomeTable.StarsCheckingWorker do
   @impl true
   def handle_info(:work, initial_state) do
     state = compute_state(initial_state)
-    map_with_stars = fn record ->
-      repo_stars = AwesomeTable.GithubRepositoryApi.repo_stars(record)
-      res = %{record | stars: repo_stars}
-      Logger.info "#{inspect(res)}"
-      res
-    end
     updated = state.loaded
               |> Enum.take(5)
-              |> Enum.map(map_with_stars)
+              |> Enum.map(&map_with_stars/1)
               |> Enum.reduce(%{}, fn e, acc -> put_in(acc, [e.id], e) end)
-
-    updated
-      |> Map.values
-      |> Enum.each(fn e ->
-                      Logger.info("try to update #{e.id}")
-                      AwesomeTable.Libraries.update_library(e, %{stars: e.stars})
-                   end)
 
     loaded = state.loaded |> Enum.filter(fn e -> !Map.has_key?(updated, e.id) end)
     Logger.info "For future updates #{inspect(loaded |> Enum.map(fn e -> e.id end))}"
@@ -47,6 +34,16 @@ defmodule AwesomeTable.StarsCheckingWorker do
       updated: updated,
       execution_start_time: after_processing_ts
     }}
+  end
+
+  defp map_with_stars(record) do
+    repo_stars = AwesomeTable.GithubRepositoryApi.repo_stars(record)
+    Logger.info "stars: #{inspect(repo_stars)}"
+    res = %{record | stars: repo_stars}
+    {status, change_set} = AwesomeTable.Libraries.update_library(record, %{stars: res.stars})
+    Logger.info "update library return status #{inspect(status)}"
+    Logger.info "changeset is #{inspect(change_set)}"
+    change_set
   end
 
   defp get_libraries({:new, record}, lower_boundary) do
