@@ -7,7 +7,10 @@ defmodule AwesomeTable.StarsCheckingWorker do
     GenServer.start_link(__MODULE__, initial)
   end
 
-
+  @doc """
+    inspired by:
+    https://geoffreylessel.com/2019/converting-to-phoenix-liveview/
+  """
   def register(pid) do
     GenServer.cast(__MODULE__, {:register, pid})
   end
