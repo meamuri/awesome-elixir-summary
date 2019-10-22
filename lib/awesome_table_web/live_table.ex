@@ -15,7 +15,7 @@ defmodule AwesomeTableWeb.LiveTable do
     AwesomeTableWeb.PageView.render("index.html", assigns)
   end
 
-  def handle_info(:update, socket) do
+  def handle_info({:update, _from, _state}, socket) do
     {:noreply, assign(socket, records: compute_records())}
   end
 

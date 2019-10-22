@@ -21,7 +21,7 @@ defmodule AwesomeTable.StarsCheckingWorker do
     {:ok, %{execution_start_time: Time.utc_now, subscribers: %{}}}
   end
 
-  def handle_info({:register, pid}, state) do
+  def handle_cast({:register, pid}, state) do
     subscribers = put_in(state.subscribers, [pid], true)
     {:noreply, %{state | :subscribers => subscribers}}
   end
