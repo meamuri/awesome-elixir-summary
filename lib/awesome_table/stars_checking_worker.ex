@@ -1,23 +1,36 @@
 defmodule AwesomeTable.StarsCheckingWorker do
   require Logger
 
-  @interval_between_execution_in_millis 5
+  @interval_between_execution_in_millis 2000
 
   def start_link(initial \\ %{}) do
     GenServer.start_link(__MODULE__, initial)
   end
 
+  @doc """
+    inspired by:
+    https://geoffreylessel.com/2019/converting-to-phoenix-liveview/
+  """
+  def register(pid) do
+    GenServer.cast(__MODULE__, {:register, pid})
+  end
+
   @impl true
   def init(_) do
     schedule_work()
-    {:ok, %{execution_start_time: Time.utc_now}}
+    {:ok, %{execution_start_time: Time.utc_now, subscribers: %{}}}
+  end
+
+  def handle_cast({:register, pid}, state) do
+    subscribers = put_in(state.subscribers, [pid], true)
+    {:noreply, %{state | :subscribers => subscribers}}
   end
 
   @impl true
   def handle_info(:work, initial_state) do
     state = compute_state(initial_state)
     updated = state.loaded
-              |> Enum.take(5)
+              |> Enum.take(10)
               |> Enum.map(&map_with_stars/1)
               |> Enum.reduce(%{}, fn e, acc -> put_in(acc, [e.id], e) end)
 
@@ -28,11 +41,14 @@ defmodule AwesomeTable.StarsCheckingWorker do
     after_processing_ts = Time.utc_now
     delay = compute_delay(state.execution_start_time, after_processing_ts)
 
+    Map.keys(state.subscribers) |> Enum.each(fn pid -> Process.send(pid, {:update, self(), state}) end)
+
     schedule_work(delay)
     {:noreply, %{
       loaded: loaded,
       updated: updated,
-      execution_start_time: after_processing_ts
+      execution_start_time: after_processing_ts,
+      subscribers: state.subscribers
     }}
   end
 
@@ -75,7 +91,7 @@ defmodule AwesomeTable.StarsCheckingWorker do
     latest_request = AwesomeTable.Requests.latest_request()
     Logger.info("latest request is #{inspect(latest_request)}")
     libs = get_libraries(latest_request, 0)
-            |> Enum.group_by(fn e -> e.stars >= 0 end)
+            |> Enum.group_by(fn e -> e.stars != -1 end)
     loaded = if libs[false], do: libs[false], else: []
     updated = if libs[true], do: libs[true], else: []
     state = %{
@@ -83,6 +99,7 @@ defmodule AwesomeTable.StarsCheckingWorker do
       updated: updated,
       request_id: latest_request,
       execution_start_time: initial_state.execution_start_time,
+      subscribers: initial_state.subscribers,
     }
     state
   end
